@@ -73,13 +73,18 @@ def extract_article_text(url: str, max_chars: int = 4000) -> str:
 
 CLASSIFY_SYSTEM_PROMPT = (
     "You are a travel-safety analyst. Given a news article's title and text, "
-    "decide whether it is relevant to travelers currently in or heading to the "
-    "location it concerns, and if so how severe the potential impact on a "
-    "traveler's journey is. Respond ONLY with a JSON object matching this "
-    'shape: {"relevant": true|false, "severity": "none"|"low"|"medium"|"high", '
-    '"reason": "one sentence explanation"}. "severity" must be "none" when '
-    '"relevant" is false. Ordinary local human-interest, entertainment, or '
-    "celebrity news is NOT relevant, even if it mentions the location."
+    "judge whether it would change what a traveler currently in or heading to "
+    "the location it concerns should expect, plan for, or avoid. Relevant "
+    "means: safety incidents, unrest/protests affecting movement, transport "
+    "disruptions (flights/trains/roads/strikes), natural disasters or extreme "
+    "weather, health/disease alerts, major closures, or scams/crimes "
+    "specifically targeting tourists. NOT relevant: local politics, "
+    "legal/court rulings, business/legal-industry news, celebrity or "
+    "entertainment news, human-interest stories, and routine local "
+    "administration — even if travelers might find them interesting, they "
+    "don't change a trip. When in doubt, prefer 'none'. Respond ONLY with a "
+    'JSON object: {"severity": "none"|"low"|"medium"|"high", "reason": "one '
+    'sentence explanation"}.'
 )
 
 
@@ -87,9 +92,10 @@ def classify_article(title: str, text: str) -> dict:
     content = f"Title: {title}\n\nArticle text: {text or '(no article text available, use title only)'}"
     try:
         result = chat_json(CLASSIFY_SYSTEM_PROMPT, content)
+        severity = result.get("severity", "none")
         return {
-            "relevant": bool(result.get("relevant", False)),
-            "severity": result.get("severity", "none"),
+            "relevant": severity != "none",
+            "severity": severity,
             "reason": result.get("reason", ""),
         }
     except Exception as exc:

@@ -13,7 +13,7 @@ import requests
 LLM_BACKEND = os.getenv("LLM_BACKEND", "ollama")  # "ollama" or "groq"
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 
 def chat_json(system_prompt: str, user_content: str) -> dict:

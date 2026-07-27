@@ -48,10 +48,24 @@ python dyord_pipeline.py "Mumbai" --max-articles 15
 streamlit run app.py
 ```
 
+## A note on model quality
+
+`llama3.2:3b` (the default local Ollama model) is small enough to run on a
+laptop CPU, but it sometimes contradicts its own stated reasoning — e.g.
+writing "unlikely to affect travelers" but still assigning `low` severity.
+That's a real limitation of small models, not a bug in the classification
+logic. The hosted deployment uses Groq's `llama-3.3-70b-versatile`, which is
+far more consistent; if you want better local results, swap `OLLAMA_MODEL` to
+a larger model (e.g. `llama3.1:8b`) at the cost of slower inference.
+
 ## Deploy
 
-Set these secrets on your hosting platform (Streamlit Community Cloud /
-Hugging Face Spaces):
+Live demo: https://huggingface.co/spaces/CoolHeisenberg/dyord-travel-alerts
+
+Hugging Face Spaces dropped the native Streamlit SDK in favor of Docker
+Spaces, so this repo includes a `Dockerfile` (non-root user, port 8501,
+`streamlit run app.py`) that HF builds directly. Set these as Space secrets
+(Settings → Repository secrets):
 
 ```
 LLM_BACKEND=groq
