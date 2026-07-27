@@ -1,0 +1,6 @@
+gnews
+googlenewsdecoder
+requests
+beautifulsoup4
+pandas
+streamlit
