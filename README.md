@@ -60,17 +60,19 @@ a larger model (e.g. `llama3.1:8b`) at the cost of slower inference.
 
 ## Deploy
 
-Live demo: https://huggingface.co/spaces/CoolHeisenberg/dyord-travel-alerts
+Deployed on **Streamlit Community Cloud** (share.streamlit.io), pointed at
+this repo's `main` branch and `app.py`. Set these in the app's Secrets
+(Advanced settings → Secrets, TOML format):
 
-Hugging Face Spaces dropped the native Streamlit SDK in favor of Docker
-Spaces, so this repo includes a `Dockerfile` (non-root user, port 8501,
-`streamlit run app.py`) that HF builds directly. Set these as Space secrets
-(Settings → Repository secrets):
+```toml
+LLM_BACKEND = "groq"
+GROQ_API_KEY = "your_key_here"
+```
 
-```
-LLM_BACKEND=groq
-GROQ_API_KEY=your_key_here
-```
+A `Dockerfile` is also included in case you'd rather self-host (Render,
+Fly.io, Railway, or a Hugging Face Docker Space if you have a PRO plan — as
+of this writing HF requires a paid plan for any Space that runs compute,
+only static Spaces are free).
 
 ## Why not a custom-trained model?
 
