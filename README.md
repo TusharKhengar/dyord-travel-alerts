@@ -1,5 +1,7 @@
 # DYORD — Traveler News Impact Analyzer
 
+demo : https://dyord-travel-alerts-ruqn66xcp2gqmwsgqu6t8m.streamlit.app/
+
 Fetches recent news for a location, resolves the real article behind each
 Google News link, and uses an LLM to judge whether the article is actually
 relevant to a traveler's safety or plans — filtering out the noise (celebrity
