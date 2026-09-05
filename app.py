@@ -23,6 +23,27 @@ st.caption(
 with st.expander("🔧 Debug Info"):
     st.text(f"LLM Backend: {LLM_BACKEND}")
 
+    if LLM_BACKEND == "groq":
+        from llm_backend import _get_secret
+        api_key = _get_secret("GROQ_API_KEY")
+        if api_key:
+            try:
+                from groq import Groq
+                client = Groq(api_key=api_key)
+                models = client.models.list()
+                st.text(f"✅ API Key: Valid (starts with {api_key[:10]}...)")
+                st.text(f"Available models: {len(models.data)}")
+                if models.data:
+                    st.text("Models you can use:")
+                    for m in models.data[:5]:
+                        st.text(f"  - {m.id}")
+                else:
+                    st.warning("⚠️ No models available with this API key!")
+            except Exception as e:
+                st.error(f"❌ API Key Error: {e}")
+        else:
+            st.error("❌ GROQ_API_KEY not found in secrets")
+
 with st.form("query"):
     location = st.text_input("Location", placeholder="e.g. Mumbai, Bali, Paris")
     max_articles = st.slider("Articles to scan", min_value=5, max_value=30, value=15)
