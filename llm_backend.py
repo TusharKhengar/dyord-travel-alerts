@@ -66,19 +66,33 @@ def _chat_json_groq(system_prompt: str, user_content: str) -> dict:
             "GROQ_API_KEY not found. Set it as an environment variable or "
             "in Streamlit secrets (Advanced settings → Secrets)."
         )
-    response = requests.post(
-        "https://api.groq.com/openai/v1/chat/completions",
-        headers={"Authorization": f"Bearer {api_key}"},
-        json={
-            "model": GROQ_MODEL,
-            "response_format": {"type": "json_object"},
-            "messages": [
+    try:
+        from groq import Groq
+        client = Groq(api_key=api_key)
+        completion = client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_content},
             ],
-        },
-        timeout=30,
-    )
-    response.raise_for_status()
-    content = response.json()["choices"][0]["message"]["content"]
-    return json.loads(content)
+            response_format={"type": "json_object"},
+        )
+        return json.loads(completion.choices[0].message.content)
+    except ImportError:
+        # Fallback to raw requests if groq SDK is not installed
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={"Authorization": f"Bearer {api_key}"},
+            json={
+                "model": GROQ_MODEL,
+                "response_format": {"type": "json_object"},
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content},
+                ],
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+        content = response.json()["choices"][0]["message"]["content"]
+        return json.loads(content)
