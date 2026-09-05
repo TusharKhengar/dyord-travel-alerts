@@ -9,6 +9,7 @@ import pandas as pd
 import streamlit as st
 
 from dyord_pipeline import analyze_location_news
+from llm_backend import LLM_BACKEND
 
 st.set_page_config(page_title="DYORD - Traveler News Impact", page_icon="🧭", layout="centered")
 
@@ -18,6 +19,10 @@ st.caption(
     "travelers, with an AI-assessed severity level."
 )
 
+# Debug info - shows which backend is active
+with st.expander("🔧 Debug Info"):
+    st.text(f"LLM Backend: {LLM_BACKEND}")
+
 with st.form("query"):
     location = st.text_input("Location", placeholder="e.g. Mumbai, Bali, Paris")
     max_articles = st.slider("Articles to scan", min_value=5, max_value=30, value=15)
@@ -25,7 +30,11 @@ with st.form("query"):
 
 if submitted and location.strip():
     with st.spinner(f"Fetching and analyzing news for {location}..."):
-        df = analyze_location_news(location.strip(), max_articles)
+        try:
+            df = analyze_location_news(location.strip(), max_articles)
+        except Exception as e:
+            st.error(f"❌ Analysis failed: {type(e).__name__}: {e}")
+            st.stop()
 
     if df.empty:
         st.warning("No articles could be fetched. Try a different location.")
