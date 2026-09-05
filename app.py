@@ -52,9 +52,16 @@ if submitted and location.strip():
             "low": ("🟡", "Low"),
         }
 
-        if relevant.empty:
+        # Check if classifications actually succeeded or failed with errors
+        failed_rows = df[df["reason"].str.startswith("classification failed:", na=False)]
+        if len(failed_rows) == len(df) and len(df) > 0:
+            first_error = failed_rows.iloc[0]["reason"]
+            st.error(f"❌ Groq API Error: {first_error}")
+            st.info("💡 Please verify that your `GROQ_API_KEY` in Streamlit Secrets is active and valid.")
+        elif relevant.empty:
             st.success("No traveler-relevant concerns found in recent news.")
-        for _, row in relevant.iterrows():
+        else:
+            for _, row in relevant.iterrows():
             icon, label = severity_style.get(row["severity"], ("⚪", row["severity"]))
             with st.container(border=True):
                 st.markdown(f"**{icon} {label} — {row['title']}**")
