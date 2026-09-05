@@ -62,11 +62,11 @@ if submitted and location.strip():
             st.success("No traveler-relevant concerns found in recent news.")
         else:
             for _, row in relevant.iterrows():
-            icon, label = severity_style.get(row["severity"], ("⚪", row["severity"]))
-            with st.container(border=True):
-                st.markdown(f"**{icon} {label} — {row['title']}**")
-                st.caption(row["reason"])
-                st.markdown(f"[{row['publisher']}]({row['url']}) · {row['published_date']}")
+                icon, label = severity_style.get(row["severity"], ("⚪", row["severity"]))
+                with st.container(border=True):
+                    st.markdown(f"**{icon} {label} — {row['title']}**")
+                    st.caption(row["reason"])
+                    st.markdown(f"[{row['publisher']}]({row['url']}) · {row['published_date']}")
 
         with st.expander("Show full raw results table"):
             st.dataframe(df, use_container_width=True)
