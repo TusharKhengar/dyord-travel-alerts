@@ -30,7 +30,7 @@ def _get_secret(key: str, default: str | None = None) -> str | None:
 LLM_BACKEND = _get_secret("LLM_BACKEND", "ollama")  # "ollama" or "groq"
 OLLAMA_HOST = _get_secret("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_MODEL = _get_secret("OLLAMA_MODEL", "llama3.2:3b")
-GROQ_MODEL = _get_secret("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_MODEL = _get_secret("GROQ_MODEL", "llama-3.1-8b-instant")
 
 
 def chat_json(system_prompt: str, user_content: str) -> dict:
