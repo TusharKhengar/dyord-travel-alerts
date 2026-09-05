@@ -4,16 +4,33 @@ Streamlit app. Switches between a local Ollama model (free, offline, used
 for local development) and Groq's hosted API (free tier, used when deployed
 since hosting platforms can't run a multi-GB local model) via the
 LLM_BACKEND environment variable.
+
+When deployed on Streamlit Community Cloud, secrets set in the dashboard are
+available via st.secrets but NOT as os.environ entries. This module merges
+both sources so deployment "just works" with the documented TOML secrets.
 """
 import json
 import os
 
 import requests
 
-LLM_BACKEND = os.getenv("LLM_BACKEND", "ollama")  # "ollama" or "groq"
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+
+def _get_secret(key: str, default: str | None = None) -> str | None:
+    """Read a config value from os.environ first, then st.secrets."""
+    value = os.getenv(key)
+    if value is not None:
+        return value
+    try:
+        import streamlit as st
+        return st.secrets.get(key, default)
+    except Exception:
+        return default
+
+
+LLM_BACKEND = _get_secret("LLM_BACKEND", "ollama")  # "ollama" or "groq"
+OLLAMA_HOST = _get_secret("OLLAMA_HOST", "http://localhost:11434")
+OLLAMA_MODEL = _get_secret("OLLAMA_MODEL", "llama3.2:3b")
+GROQ_MODEL = _get_secret("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 
 def chat_json(system_prompt: str, user_content: str) -> dict:
@@ -43,7 +60,12 @@ def _chat_json_ollama(system_prompt: str, user_content: str) -> dict:
 
 
 def _chat_json_groq(system_prompt: str, user_content: str) -> dict:
-    api_key = os.environ["GROQ_API_KEY"]
+    api_key = _get_secret("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "GROQ_API_KEY not found. Set it as an environment variable or "
+            "in Streamlit secrets (Advanced settings → Secrets)."
+        )
     response = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={"Authorization": f"Bearer {api_key}"},
